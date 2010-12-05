@@ -1,0 +1,16 @@
+body {
+    background:#white;
+    text-align:center;
+}
+
+canvas {
+    border-style:none;
+}
+
+#header {
+    min-height:100px;
+}
+
+#footer {
+    min-height:150px;
+}
