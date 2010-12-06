@@ -1,12 +1,22 @@
 <head>
+  <link rel="stylesheet" type="text/css" href="../font-reset.css">
   <link rel="stylesheet" type="text/css" href="./style.css">
 </head>
 <body>
   <div id="header"></div>
-
-  <canvas id="snake" width="500" height="500"></canvas>
-  
+  <div id="main">
+    <div id="panel">
+      <h1 id="score">0</h1>
+      <br />
+      <h1 id="start">Start:</h1>
+      <span class="game" id="easy">Easy</span>
+      <span class="game" id="normal">Normal</span>
+      <span class="game" id="hard">Hard</span>
+    </div>
+    <canvas id="snake" width="500" height="500"></canvas>
+  </div>
   <div id="footer"></div>
-  <script src='../jquery.js' type='text/javascript' charset='utf-8'></script>
+  <!-- <script src='../jquery.js' type='text/javascript' charset='utf-8'></script> -->
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js' type='text/javascript' charset='utf-8'></script>
   <script src='./snake.js' type='text/javascript' charset='utf-8'></script>
 </body>

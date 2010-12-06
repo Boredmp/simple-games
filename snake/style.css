@@ -3,8 +3,19 @@ body {
     text-align:center;
 }
 
-canvas {
+#main {
+    max-width:750px;
+    margin:auto;
+}
+
+#panel {
+    width:250px;
+    float:left;
+}
+
+#snake {
     border-style:none;
+    float:right;
 }
 
 #header {
@@ -13,4 +24,44 @@ canvas {
 
 #footer {
     min-height:150px;
+}
+
+#score {
+    margin-top:0px;
+    font-size:350%;
+    font-family:Lucida Grande;
+    float:right;
+    margin-right:40px;
+}
+
+#start {
+    margin-top:50px;
+    margin-bottom:0;
+    font-size:250%;
+    font-family:Lucida Grande;
+}
+
+.game {
+    display:block;
+    font-size:250%;
+    width:4em;
+    float:right;
+    margin-right:60px;
+    margin-top:25px;
+    cursor:pointer;
+}
+
+#easy {
+    background:#green;
+    color:#white;
+}
+
+#normal {
+    background:#blue;
+    color:#white;
+}
+
+#hard {
+    background:#red;
+    color:#white;
 }

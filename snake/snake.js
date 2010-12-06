@@ -16,8 +16,9 @@ $(document).ready(function() {
 
     var GRID = make_grid();
 
-    function perimeter() {
+    function level() {
 	var left = [], right=[], top=[], bottom=[];
+	var wall1=[],wall2=[],wall3=[],wall4=[];
 	for (var i=0; i<50; i++) {
 	    left.push(i);
 	}
@@ -25,12 +26,49 @@ $(document).ready(function() {
 	    right.push(i);
 	}
 	for (i=50; i<2450; i+=50) {
-	    top.push(i)
+	    top.push(i);
 	}
 	for (i=99; i<2500; i+=50) {
-	    bottom.push(i)
+	    bottom.push(i);
 	}
-	return left.concat(right,top,bottom);
+	for (i=0; i<3; i++) {
+	    for (var j=(315+(50*i)); j<(315+(50*i) + 20); j++) {
+		wall1.push(j);
+	    }
+	}
+
+	for (i=0; i<3; i++) {
+	    for (var j=(2015+(50*i)); j<(2015+(50*i) + 20); j++) {
+		wall2.push(j);
+	    }
+	}
+
+	for (i=0; i<3; i++) {
+	    for (var j=(807+(50*i)); j<(807+(50*i) + 10); j++) {
+		wall3.push(j);
+	    }
+	}
+
+	for (i=0; i<3; i++) {
+	    for (var j=(883+(50*i)); j<(883+(50*i) + 10); j++) {
+		wall3.push(j);
+	    }
+	}
+
+	for (i=0; i<3; i++) {
+	    for (var j=(1507+(50*i)); j<(1507+(50*i) + 10); j++) {
+		wall4.push(j);
+	    }
+	}
+
+	for (i=0; i<3; i++) {
+	    for (var j=(1583+(50*i)); j<(1583+(50*i) + 10); j++) {
+		wall4.push(j);
+	    }
+	}
+
+
+	return left.concat(right,top,bottom,wall1,wall2,wall3,wall4);
     }
 
     function clear(){
@@ -73,11 +111,19 @@ $(document).ready(function() {
 	    else return false;
 	};
 
+	this.points = null;
+	this.score = function() {
+	    this.points += 100 + ((79-this.speed) * 10 );
+	    $('#score').text(this.points);
+	};
+
 	this.eat = function() {
 	    if (include(this.food, this.body[0])) {
 	    	this.body.push(this.tail);
 		this.food=[];
-		this.speed -= 1;
+		if (this.speed>1) this.speed -= 1;
+		else this.speed=1;
+		this.score();
 		return true;
 	    }
 	    else return false;
@@ -172,14 +218,32 @@ $(document).ready(function() {
 	run();
     };
 
-    function init(){
+    function init(speed){
 	var snake = new Snake;
-	snake.walls = perimeter();
-	snake.speed = 60;
+	snake.walls = level();
+	snake.speed = speed;
 	snake.direction = 'UP';
-	make_snake(snake, 440);
+	make_snake(snake, 540);
 	main(snake);
     }
 
-    init();
+    function screenshot() {
+	var snake = new Snake;
+	snake.walls = level();
+	make_snake(snake, 540);
+	snake.draw();
+	
+    }
+
+    $('#easy').click(function() {
+	init(80);
+    });
+    $('#normal').click(function() {
+	init(60);
+    });
+    $('#hard').click(function() {
+	init(40);
+    });
+
+    screenshot();
 });
