@@ -14,6 +14,7 @@ class Tetris(object):
         return new_board
 
     def checkRows(self):
+        cleared = 0
         for i in range(len(self.board)):
             row = self.board[i]
             filled = 0
@@ -25,15 +26,32 @@ class Tetris(object):
                 new_row = []
                 for j in range(self.cols):
                     new_row.append(0)
+                cleared += 1
                 self.board.insert(0, new_row)
+        scores = [0, 40, 100, 300, 1200]
+        self.cleared_rows = self.cleared_rows + cleared
+        self.score = self.score + scores[cleared]
+        print scores[cleared]
+        print self.score
+        self.score_total["text"] = "Score: " + str(self.score)
+        self.score_rows["text"] = "Rows: " + str(self.cleared_rows)
                     
     def __init__(self):
         self.rows=15
         self.cols=10
         self.root = Tk()
         self.board = self.loadBoard()
+
+        self.frame = Frame(self.root)
+        self.frame.pack()
+        self.score_rows = Label(self.frame, justify=LEFT, text="Rows: 0")
+        self.score_rows.pack(fill=X, side=LEFT)
+        self.score_total = Label(self.frame, justify=RIGHT, text="Score: 0")
+        self.score_total.pack(fill=X, side=RIGHT)
         self.canvas = Canvas(self.root, width=310, height=465)
         self.canvas.pack()
+        self.cleared_rows = 0
+        self.score = 0
         shape1 = [[[ 0, 1, 1 ], [ 1, 1, 0 ]], [[ 1, 0], [ 1, 1], [ 0, 1]]]
         shape2 = [[[ 2, 2, 0 ],  [ 0, 2, 2 ]], [[ 0, 2], [ 2, 2], [ 2, 0]]]
         shape3 = [[[ 0, 0, 3 ],  [ 3, 3, 3 ]], [[ 3, 0], [ 3, 0], [ 3, 3]], [[ 3, 3, 3], [ 3, 0, 0]], [[3, 3], [0, 3], [0, 3]]]
@@ -51,7 +69,7 @@ class Tetris(object):
         self.root.bind("<Key>", keyPressed)
 
 def drawCell(left, top, right, bottom, value):
-    colors = ("blue", "orange", "yellow", "green", "red", "violet", "pink", "white")
+    colors = ("#260033", "#f24e4e", "#ff7f47", "#ffb91c", "#75de41", "#03e3c2", "#7e00f2", "#00de3b")
     if (value > 9):
         value = value/10
     fill_color = colors[value]
@@ -123,6 +141,8 @@ def cement_block():
             if (tetris.board[this_y][this_x] < 10):
                 tetris.board[this_y][this_x] = (tetris.current_piece[i][j]) * 10
     tetris.checkRows()
+    if (tetris.y_pos == 0):
+        restart()
 
 def outOfBoundsX(x):
     if (x<0):
@@ -217,9 +237,11 @@ def keyPressed(event):
             tetris.x_pos += 1
             movePiece(old_x, old_y)
     elif (event.keysym =="r"):
-        tetris.root.destroy()
-        init()
-        # restartGame()
+        restart()
+
+def restart():
+    tetris.root.destroy()
+    init()
 
 def run():
     dropPiece()
