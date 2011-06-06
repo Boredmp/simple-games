@@ -63,6 +63,9 @@ def drawPiece():
             else: 
                 pass
     drawBoard()
+
+def checkRows():
+    
     
 def movePiece(old_x, old_y):
     for i in range(len(tetris.current_piece)):
@@ -133,14 +136,17 @@ def checkRotation():
         this_rotation += 1
 
     new_piece = tetris.pieces[tetris.shape][(this_rotation)]
-    collides = collision_check(tetris.x_pos, tetris.y_pos, new_piece)
     not_okay = ((tetris.x_pos + len(new_piece)) > len(tetris.board[0]))
     also_bad = ((tetris.y_pos + len(new_piece[0])) > len(tetris.board))
 
-    if (not_okay or also_bad or collides):
+    if (not_okay or also_bad):
         return True
     else:
-       return False
+        collides = collision_check(tetris.x_pos, tetris.y_pos, new_piece)
+        if (collides):
+            return True
+        else:
+            return False
     
 def dropPiece():
     if (outOfBoundsY(tetris.y_pos+1)):
@@ -199,7 +205,8 @@ def keyPressed(event):
             tetris.x_pos += 1
             movePiece(old_x, old_y)
     elif (event.keysym =="r"):
-        pass
+        tetris.root.destroy()
+        init()
         # restartGame()
 
 def run():
