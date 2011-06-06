@@ -4,20 +4,34 @@ from random import randint
 from Tkinter import *
 
 class Tetris(object):
-    def loadBoard(self, cols, rows):
+    def loadBoard(self):
         new_board = []
-        for i in range(rows):
+        for i in range(self.rows):
             row = []
-            for j in range(cols):
+            for j in range(self.cols):
                 row.append(0)
             new_board.append(row)
         return new_board
 
+    def checkRows(self):
+        for i in range(len(self.board)):
+            row = self.board[i]
+            filled = 0
+            for col in row:
+                if (col > 0):
+                    filled += 1
+            if (filled >= self.cols):
+                del self.board[i]
+                new_row = []
+                for j in range(self.cols):
+                    new_row.append(0)
+                self.board.insert(0, new_row)
+                    
     def __init__(self):
-        rows=15
-        cols=10
+        self.rows=15
+        self.cols=10
         self.root = Tk()
-        self.board = self.loadBoard(cols, rows)
+        self.board = self.loadBoard()
         self.canvas = Canvas(self.root, width=310, height=465)
         self.canvas.pack()
         shape1 = [[[ 0, 1, 1 ], [ 1, 1, 0 ]], [[ 1, 0], [ 1, 1], [ 0, 1]]]
@@ -64,9 +78,6 @@ def drawPiece():
                 pass
     drawBoard()
 
-def checkRows():
-    
-    
 def movePiece(old_x, old_y):
     for i in range(len(tetris.current_piece)):
         for j in range(len(tetris.current_piece[i])):
@@ -111,6 +122,7 @@ def cement_block():
             this_y = tetris.y_pos + j
             if (tetris.board[this_y][this_x] < 10):
                 tetris.board[this_y][this_x] = (tetris.current_piece[i][j]) * 10
+    tetris.checkRows()
 
 def outOfBoundsX(x):
     if (x<0):
