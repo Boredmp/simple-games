@@ -1,242 +1,256 @@
-# MyTertris.py
+#!/usr/bin/env python
 
-from Tkinter import * 
-# from Tkinter import tkfont, canvas, 
-# from Tkinter import tkfont
-import random
-import sys
-import tkMessageBox
+from random import randint
+from Tkinter import *
 
-emptyColor = "blue"
+class Tetris(object):
+    def loadBoard(self):
+        new_board = []
+        for i in range(self.rows):
+            row = []
+            for j in range(self.cols):
+                row.append(0)
+            new_board.append(row)
+        return new_board
 
-def restartGame():
-    canvas.data.isGameOver=False
-    run (15,10)
-    
-def mousePressed (event):
-    moveFallingPiece()
-    redrawAll()
+    def checkRows(self):
+        cleared = 0
+        for i in range(len(self.board)):
+            row = self.board[i]
+            filled = 0
+            for col in row:
+                if (col > 0):
+                    filled += 1
+            if (filled >= self.cols):
+                del self.board[i]
+                new_row = []
+                for j in range(self.cols):
+                    new_row.append(0)
+                cleared += 1
+                self.board.insert(0, new_row)
+        scores = [0, 40, 100, 300, 1200]
+        self.cleared_rows = self.cleared_rows + cleared
+        self.score = self.score + scores[cleared]
+        self.score_total["text"] = "Score: " + str(self.score)
+        self.score_rows["text"] = "Rows: " + str(self.cleared_rows)
+                    
+    def __init__(self):
+        self.rows=15
+        self.cols=10
+        self.root = Tk()
+        self.board = self.loadBoard()
 
-def fallingPieceCenter(row, col, topRow, topCol):
-    pass
+        self.frame = Frame(self.root)
+        self.frame.pack()
+        self.score_rows = Label(self.frame, justify=LEFT, text="Rows: 0")
+        self.score_rows.pack(fill=X, side=LEFT)
+        self.score_total = Label(self.frame, justify=RIGHT, text="Score: 0")
+        self.score_total.pack(fill=X, side=RIGHT)
+        self.canvas = Canvas(self.root, width=310, height=465)
+        self.canvas.pack()
+        self.cleared_rows = 0
+        self.score = 0
+        shape1 = [[[ 0, 1, 1 ], [ 1, 1, 0 ]], [[ 1, 0], [ 1, 1], [ 0, 1]]]
+        shape2 = [[[ 2, 2, 0 ],  [ 0, 2, 2 ]], [[ 0, 2], [ 2, 2], [ 2, 0]]]
+        shape3 = [[[ 0, 0, 3 ],  [ 3, 3, 3 ]], [[ 3, 0], [ 3, 0], [ 3, 3]], [[ 3, 3, 3], [ 3, 0, 0]], [[3, 3], [0, 3], [0, 3]]]
+        shape4 = [[[ 4, 0, 0 ],  [ 4, 4, 4 ]], [[ 4, 4], [ 4, 0], [ 4, 0]], [[ 4, 4, 4], [ 0, 0, 4]], [[ 0, 4], [ 0, 4], [ 4, 4]]]
+        shape5 = [[[ 0, 5, 0 ],  [ 5, 5, 5 ]], [[ 5, 0], [ 5, 5],  [ 5, 0]], [[ 5, 5, 5], [ 0, 5, 0]], [[ 0, 5], [ 5, 5], [ 0, 5]]]
+        shape6 = [[[ 6, 6, 6, 6 ]], [[ 6], [ 6], [ 6],  [ 6]]]
+        shape7 = [[[ 7, 7 ],  [ 7, 7 ]]]
+        self.pieces = []
+        self.pieces.append(shape1), self.pieces.append(shape2), self.pieces.append(shape3), self.pieces.append(shape4), self.pieces.append(shape5), self.pieces.append(shape6), self.pieces.append(shape7)
+        self.x_pos = 4
+        self.y_pos = 0
+        self.shape = 0
+        self.rotation = 0
+        self.current_piece = self.pieces[self.shape][self.rotation]
+        self.root.bind("<Key>", keyPressed)
 
-def doTimerFired():
-    pass
+def drawCell(left, top, right, bottom, value):
+    colors = ("#260033", "#f24e4e", "#ff7f47", "#ffb91c", "#75de41", "#03e3c2", "#7e00f2", "#00de3b")
+    if (value > 9):
+        value = value/10
+    fill_color = colors[value]
+    tetris.canvas.create_rectangle(left, top, right, bottom, fill=fill_color)
 
-def notsure():
-    pass
-    #boardRows=len(board)
-    #boardCols=len(board[0]
+def drawBoard():
+    for i in range(len(tetris.board)):
+        for j in range(len(tetris.board[i])):
+            value = tetris.board[i][j]
+            left = j * 31
+            top = i * 31
+            right = j * 31 + 31
+            bottom = i * 31 + 31            
+            drawCell(left, top, right, bottom, value)
 
-    #rows=canvas.data.fallingPieceRows
-    #cols=canvas.data.fallingPieceCols
+def drawPiece():
+    for i in range(len(tetris.current_piece)):
+        for j in range(len(tetris.current_piece[i])):
+            this_x = tetris.x_pos + i
+            this_y = tetris.y_pos + j
+            if (tetris.current_piece[i][j]>0):
+                tetris.board[this_y][this_x] = tetris.current_piece[i][j]
+            else: 
+                pass
+    drawBoard()
 
-    #tempTopRow=canvas.data.fallingPieceTopRow +drow
-    #tempTopCol=canvas.data.fallingPieceTopcol+dcol
+def movePiece(old_x, old_y):
+    for i in range(len(tetris.current_piece)):
+        for j in range(len(tetris.current_piece[i])):
+            this_x = old_x + i
+            this_y = old_y + j
+            if (tetris.board[this_y][this_x] < 10):
+                tetris.board[this_y][this_x] = 0
+    drawPiece()
 
-    #legal=True
-    #for row in range (rows):
-     #      for col in range (cols):
+def clearPiece():
+    for i in range(len(tetris.current_piece)):
+        for j in range(len(tetris.current_piece[i])):
+            this_x = tetris.x_pos + i
+            this_y = tetris.y_pos + j
+            if (tetris.board[this_y][this_x] < 10):
+                tetris.board[this_y][this_x] = 0
+    return
 
-def moveFallingPiece():
-    if (fallingPieceIsLegal (drow, dcol)==True):
-        canvas.data.fallingPieceTopRow +=drow
-        canvas.data.fallingPieceTopCol += dcol
-        #print "**Here :", canvas.data.fallingPieceTopRow, " ", ca
+def newPiece():
+    piece_num = randint(0,(len(tetris.pieces)-1))
+    tetris.shape = piece_num
+    tetris.rotation = 0
+    tetris.current_piece = tetris.pieces[tetris.shape][tetris.rotation]
+    tetris.x_pos = 4
+    tetris.y_pos = 0
+    drawPiece()
+
+def collision_check(check_x, check_y, piece):
+    for i in range(len(piece)):
+        for j in range(len(piece[i])):
+            this_x = check_x + i
+            this_y = check_y + j
+            if ((tetris.board[this_y][this_x] > 9) and (piece[i][j]) > 0):
+                return True
+    else:
+        return False
+
+def cement_block():
+    for i in range(len(tetris.current_piece)):
+        for j in range(len(tetris.current_piece[i])):
+            this_x = tetris.x_pos + i
+            this_y = tetris.y_pos + j
+            if (tetris.board[this_y][this_x] < 10):
+                tetris.board[this_y][this_x] = (tetris.current_piece[i][j]) * 10
+    tetris.checkRows()
+    if (tetris.y_pos == 0):
+        restart()
+
+def outOfBoundsX(x):
+    if (x<0):
+        return True
+    elif (x + len(tetris.current_piece) > len(tetris.board[0])):
         return True
     else:
-        returnFalse
+        return False
 
-def isFull (row):
-    cols=len(canvas.data.board[0])
+def outOfBoundsY(y):
+    if (y + len(tetris.current_piece[0]) > len(tetris.board)):
+        return True
+    else:
+        return False
 
-    full=True
+def checkRotation():
+    this_rotation = tetris.rotation
+    okay = ((this_rotation+1) > len(tetris.pieces[tetris.shape])-1)
 
-def timerFired():
-    doTimerFired()
-    if (moveFallingPiece (0,0)==False):
-        canvas.data.isGameover=True
-        drawText(150,100, "Game Over!\nPress 'r' to restart.")
-        canvas.after_cancel(canvas.data.id)
-    elif(canvas.data.isGameOver !=True):
-        redrawAll()
-        delay= 500 #milliseconds
-        canvas.data.id=canvas.after(delay, timerFired) #pause
+    if (okay):
+        this_rotation = 0
+    else:
+        this_rotation += 1
 
-def drawBackground():
-    #canvas.create_rectangle(-1,-1, canvas.data.width, canvas.data.height)
-    pass
+    new_piece = tetris.pieces[tetris.shape][(this_rotation)]
+    not_okay = ((tetris.x_pos + len(new_piece)) > len(tetris.board[0]))
+    also_bad = ((tetris.y_pos + len(new_piece[0])) > len(tetris.board))
 
-        
-def drawCell(row, col, color):
-    margin = 5
-    cellSize = 30
-    left = margin + col * cellSize
-    right = left + cellSize
-    top = margin + row * cellSize
-    bottom = top + cellSize
-    canvas.create_rectangle(left, top, right, bottom, fill=emptyColor)
-    canvas.create_rectangle(left+3, top+3, right-3, bottom-3, fill=color)
+    if (not_okay or also_bad):
+        return True
+    else:
+        collides = collision_check(tetris.x_pos, tetris.y_pos, new_piece)
+        if (collides):
+            return True
+        else:
+            return False
+    
+def dropPiece():
+    if (outOfBoundsY(tetris.y_pos+1)):
+        cement_block()
+        newPiece()
+    elif (collision_check(tetris.x_pos, tetris.y_pos+1, tetris.current_piece)):
+        cement_block()
+        newPiece()
+    else:
+        old_x = tetris.x_pos
+        old_y = tetris.y_pos
+        tetris.y_pos += 1
+        movePiece(old_x, old_y)
 
+def rotate():
+    this_rotation = tetris.rotation
+    okay = ((this_rotation+1) > len(tetris.pieces[tetris.shape])-1)
 
-def drawFallingPiece():
-    rows = canvas.data.fallingPieceRows
-    cols = canvas.data.fallingPieceCols
+    if (okay):
+        tetris.rotation = 0
+    else:
+        tetris.rotation += 1
 
-    boardRows = len(canvas.data.board)
-    boardCols = len(canvas.data.board[0])
-
-    top = canvas.data.fallingPieceTopRow
-    topCol=canvas.data.fallingPieceTopCol
-    #print canvas.data.fallingPiece
-    for row in range (rows):
-        i=0
-        for col in range(cols):
-            if (canvas.data.fallingPiece[row][col]==True):
-                drawCell (top, topCol+i, canvas.data.fallingPieceColor)
-            i+=1
-        top+=1
-
-def newFallingPiece():
-    i=random.randint(0,6)
-    canvas.data.fallingPiece=canvas.data.tetrisPieces[i]
-    canvas.data.fallingPieceColor=canvas.data.tetrisPieceColors[i]
-    canvas.data.fallingPieceRows=len(canvas.data.fallingPiece)
-    canvas.data.fallingPieceCols=len(canvas.data.fallingPiece[0])
-
-    #boardRows=len(canvas.data.rows)
-    boardCols=len(canvas.data.board[0])
-
-    #rows=canvas.data.fallingPieceRows
-    cols=canvas.data.fallingPieceCols
-    canvas.data.fallingPieceTopRow=0
-    canvas.data.fallingPieceTopCol=boardCols/2-cols/2
+    new_piece = tetris.pieces[tetris.shape][(this_rotation)]
+    not_okay = ((tetris.x_pos + len(new_piece)) > len(tetris.board[0]))
+    clearPiece()
+    tetris.current_piece = tetris.pieces[tetris.shape][tetris.rotation]
+    drawPiece()
 
 def keyPressed(event):
     if (event.keysym =="Up"):
-        rotateFallingPiece()
+        if (checkRotation()):
+            pass
+        else:
+            rotate()
     elif (event.keysym =="Down"):
-        moveFallingPiece(+1, 0)
+        dropPiece()
     elif (event.keysym=="Left"):
-        moveFallingPiece(0, -1)
+        if (outOfBoundsX(tetris.x_pos-1)):
+            pass
+        elif (collision_check(tetris.x_pos-1, tetris.y_pos, tetris.current_piece)):
+            pass
+        else:
+            old_x = tetris.x_pos
+            old_y = tetris.y_pos
+            tetris.x_pos -= 1
+            movePiece(old_x, old_y)
     elif (event.keysym =="Right"):
-        moveFallingPiece(0,+1)
+        if (outOfBoundsX(tetris.x_pos+1)):
+            pass
+        elif (collision_check(tetris.x_pos+1, tetris.y_pos, tetris.current_piece)):
+            pass
+        else:
+            old_x = tetris.x_pos
+            old_y = tetris.y_pos
+            tetris.x_pos += 1
+            movePiece(old_x, old_y)
     elif (event.keysym =="r"):
-        restartGame()
-                  
-    redrawAll()
+        restart()
 
-def printBoard():
-    board=canvas.data.board
-    rows=len(board)
-    cols=len(board[0])
-    for row in range (rows):
-        for col in range(cols):
-            sys.stderr.write(board[row][col]+" ")
+def restart():
+    tetris.root.destroy()
+    init()
 
-def drawGame():
-    drawBackground()
-    drawBoard()
-    drawFallingPiece()
+def run():
+    dropPiece()
+    tetris.root.after(800, run)
 
-def drawBoard():
-    board = canvas.data.board
-    rows = len(board)
-    cols = len(board[0])
-    for row in range(rows):
-        for col in range(cols):
-            drawCell(row, col, board[row][col])
+def init():
+    global tetris
+    tetris = Tetris()
+    newPiece()
+    run()
+    tetris.root.mainloop()
 
-def drawBackground():
-    #canvas.create_rectangle(-1,-1, canvas.data.width, canvas.data.height, fill="orange")
-    pass
+init()
 
-def redrawAll():
-    if (canvas.data.isGameOver != True):
-        drawGame()
-
-def loadBoard( rows, cols ):
-    emptyColor="blue"
-    canvas.data.board = [ [ emptyColor ] * cols for i in range (rows) ]
-
-    #canvas.data.board[0][0] = "red"
-    #canvas.data.board[0][cols-1] = "white"
-    #canvas.data.board[rows-1][0] = "green"
-    #canvas.data.board[rows-1][cols-1] = "gray"    
-    #printBoard()
-    sPiece = [
-        [ False, True, True ],
-        [ True, True, False ]
-        ]
-    zPiece = [
-        [ True, True, False ],
-        [ False, True, True ]
-        ]
-    lPiece = [
-        [ False, False, True ],
-        [ True, True, True ]
-        ]
-    jPiece = [
-        [ True, False, False ],
-        [ True, True, True ]
-        ]
-    tPiece = [
-        [ False, True, False ],
-        [ True, True, True ]
-        ]
-    iPiece = [
-        [ True, True, True, True ]
-        ]
-    oPiece = [
-        [ True, True ],
-        [ True, True ]
-        ]
-    canvas.data.tetrisPieces = [iPiece, jPiece, lPiece, oPiece, sPiece, tPiece, zPiece]
-    canvas.data.tetrisPieceColors = ["red", "yellow", "magenta", "pink", "cyan", "green", "orange"]
-
-def printInstructions():
-    print "Tetris!"
-    print "Use the Left or Right arrow key to move the piece."
-    print "Press up to turn a piece."
-    print "Press Down to accelerate falling!"
-
-def init(rows, cols):
-    printInstructions()
-    loadBoard(rows, cols)
-    canvas.data.inDebugMode = False
-    newFallingPiece()
-    canvas.data.isGameOver = False
-    redrawAll()
-    
-
-def run(rows, cols):
-    # create the root and the canvas
-    global canvas
-    root = Tk()
-    canvas = Canvas(root, bg="orange", width=310, height=465)
-    canvas.pack()
-
-    #add this line so that the window can not be resized
-    root.resizable (width=0, height=0)
-    
-    # Store canvas in root and in canvas itself for callbacks
-    root.canvas = canvas.canvas = canvas
-    # Set up canvas data and call init
-    class Struct: pass
-    canvas.data = Struct()
-
-    canvas.data.rows = rows
-    canvas.data.cols = cols
-    canvas.data.width = 310
-    canvas.data.height = 465
-    canvas.data.font = tkFont.Font(size=24, weight="bold", family="Helvetica")
-    init(rows, cols)
-
-    # set up events
-    #root.bind("<Button-1>", mousePressed)
-    root.bind("<Key>", keyPressed)
-    timerFired()
-    # and launch the app
-    root.mainloop()  # This call BLOCKS (so your program waits until you close the window!)
-
-run(15, 10)
