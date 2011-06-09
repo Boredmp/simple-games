@@ -107,7 +107,11 @@ class Grid(object):
                 if (self.grid[this_y][this_x] < 10):
                     self.grid[this_y][this_x] = (block.current[i][j]) * 10
         self.check_rows()
-
+        if (block.y == 0):
+            return False
+        else:
+            return True
+    
     def drop_block(self, block):
         if (self.out_of_bounds_Y(block, block.y+1)):
             self.cement_block(block)
@@ -115,10 +119,12 @@ class Grid(object):
             self.insert_block(block)
             return True
         elif (self.collision_check(block.x, block.y+1, block.current)):
-            self.cement_block(block)
-            block.new_block()
-            self.insert_block(block)
-            return True
+            if( self.cement_block(block)):
+                block.new_block()
+                self.insert_block(block)
+                return True
+            else:
+                return False
         else:
             old_x = block.x
             old_y = block.y
@@ -183,9 +189,9 @@ class Block(object):
 
         
 class Game(object):
-    def __init__(self, grid, block):
-        self.grid = grid
-        self.block = block
+    def __init__(self):
+        self.grid = Grid(15, 10)
+        self.block = Block()
         self.root = Tk()
         self.root.bind("<Key>", self.keyPressed)
         self.frame = Frame(self.root)
@@ -206,7 +212,8 @@ class Game(object):
     def run(self):
         self.score_total["text"] = "Score: " + str(self.grid.score)
         self.score_rows["text"] = "Rows: " + str(self.grid.cleared_rows)
-        self.grid.drop_block(self.block)
+        if (not self.grid.drop_block(self.block)):
+            self.restart()
         self.draw_grid()
         self.root.after(800, self.run)
 
@@ -227,6 +234,10 @@ class Game(object):
                 right = j * 31 + 31
                 bottom = i * 31 + 31            
                 self.draw_cell(left, top, right, bottom, value)
+
+    def restart(self):
+        self.root.destroy()
+        self.__init__()
 
     def keyPressed(self, event):
         if (event.keysym =="Up"):
@@ -250,9 +261,7 @@ class Game(object):
             else:
                 pass
         elif (event.keysym =="r"):
-            restart()
+            self.restart()
     
 def run():
-    grid = Grid(15, 10)
-    block = Block()
-    game = Game(grid, block)
+    game = Game()
