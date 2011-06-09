@@ -1,0 +1,349 @@
+from random import randint
+from Tkinter import *
+
+# board, game, block
+# draw, update score, init, update board, update block
+
+class Window(object):
+    def __init__(self):
+        self.root = Tk()
+        self.frame = Frame(self.root)
+        self.frame.pack()
+        self.score_rows = Label(self.frame, justify=LEFT, text="Rows: 0")
+        self.score_rows.pack(fill=X, side=LEFT)
+        self.score_total = Label(self.frame, justify=RIGHT, text="Score: 0")
+        self.score_total.pack(fill=X, side=RIGHT)
+        self.canvas = Canvas(self.root, width=310, height=465)
+        self.canvas.pack()
+
+    def draw_cell(self, left, top, right, bottom, value):
+        colors = ("#260033", "#f24e4e", "#ff7f47", "#ffb91c", "#75de41", "#03e3c2", "#7e00f2", "#00de3b")
+        if (value > 9):
+            value = value/10
+        fill_color = colors[value]
+        self.canvas.create_rectangle(left, top, right, bottom, fill=fill_color)
+
+    def draw_board(self, grid):
+        for i in range(len(grid)):
+            for j in range(len(grid[i])):
+                value = grid[i][j]
+                left = j * 31
+                top = i * 31
+                right = j * 31 + 31
+                bottom = i * 31 + 31            
+                self.draw_cell(left, top, right, bottom, value)
+
+class Board(object):
+    def __init__(self, rows, cols):
+        self.grid = self.create_grid(rows, cols)
+
+    def create_grid(self, rows, cols):
+        new_grid = []
+        for i in range(rows):
+            row = []
+            for j in range(cols):
+                row.append(0)
+                new_grid.append(row)
+        return new_grid
+
+
+    def insert_block(self, block):
+        for i in range(len(block.current)):
+            for j in range(len(block.current[i])):
+                this_x = block.x + i
+                this_y = block.y + j
+                if (block.current[i][j]>0):
+                    self.grid[this_y][this_x] = block.current[i][j]
+                else: 
+                    pass
+
+class Block(object):
+    def __init__(self):
+        self.blocks = self.create_blocks()
+
+    def create_blocks(self):
+        shape1 = [[[ 0, 1, 1 ], [ 1, 1, 0 ]], [[ 1, 0], [ 1, 1], [ 0, 1]]]
+        shape2 = [[[ 2, 2, 0 ],  [ 0, 2, 2 ]], [[ 0, 2], [ 2, 2], [ 2, 0]]]
+        shape3 = [[[ 0, 0, 3 ],  [ 3, 3, 3 ]], [[ 3, 0], [ 3, 0], [ 3, 3]], [[ 3, 3, 3], [ 3, 0, 0]], [[3, 3], [0, 3], [0, 3]]]
+        shape4 = [[[ 4, 0, 0 ],  [ 4, 4, 4 ]], [[ 4, 4], [ 4, 0], [ 4, 0]], [[ 4, 4, 4], [ 0, 0, 4]], [[ 0, 4], [ 0, 4], [ 4, 4]]]
+        shape5 = [[[ 0, 5, 0 ],  [ 5, 5, 5 ]], [[ 5, 0], [ 5, 5],  [ 5, 0]], [[ 5, 5, 5], [ 0, 5, 0]], [[ 0, 5], [ 5, 5], [ 0, 5]]]
+        shape6 = [[[ 6, 6, 6, 6 ]], [[ 6], [ 6], [ 6],  [ 6]]]
+        shape7 = [[[ 7, 7 ],  [ 7, 7 ]]]
+        blocks = [shape1, shape2, shape3, shape4, shape5, shape6, shape7]
+        return blocks
+
+    def new_block(self):
+        block_num = randint(0,(len(self.blocks)-1))
+        self.shape = block_num
+        self.rotation = 0
+        self.current = self.blocks[self.shape][self.rotation]
+        self.x = 4
+        self.y = 0
+        
+class Game(object):
+    def __init__(self, window, board, block):
+        self.window = window
+        self.board = board
+        self.block = block
+        self.board.draw()
+        self.run()
+        self.window.root.mainloop()
+    
+    def draw(self):
+        self.window.draw_board(self.board.grid)
+            
+    def run(self):
+        self.block.new_block()
+        self.board.insert_block(self.block)
+        self.draw()
+
+    
+
+def run():
+    window = Window()
+    board = Board(window, 15, 10)
+    block = Block()
+    game = Game(window, board, block)
+
+#run()
+
+# def init_game():
+#     game = {}
+#     game["cleared"] = 0
+#     game["score"] = 0
+#     return game
+
+
+#     # self.pieces.append(shape1), self.pieces.append(shape2), self.pieces.append(shape3), self.pieces.append(shape4), self.pieces.append(shape5), self.pieces.append(shape6), self.pieces.append(shape7)    
+
+# def init_board(cols, rows):
+#     new_board = []
+#     for i in range(rows):
+#         row = []
+#         for j in range(cols):
+#             row.append(0)
+#             new_board.append(row)
+#     return new_board
+
+
+# def run(action, root):
+#     if (action==0):
+#         # init        
+#         blocks = init_blocks()
+#         board = init_board(10,15)
+#         game = init_game()
+
+#     if (action==1):
+#         # new block
+#         block = new_block(blocks)
+
+#     if (action==2):
+#         # drop
+#         print "running"
+
+#     if (action==3):
+#         # rotate
+#         pass
+#     if (action==4):
+#         # left
+#         pass
+#     if (action==5):
+#         # right
+#         pass
+
+#     root.after(800, run(2, root))
+
+# def init():
+#     root = Tk()
+#     run(0, root)
+
+# init()
+
+# 
+# class Tetris(object):
+#     def checkRows(self):
+#         cleared = 0
+#         for i in range(len(self.board)):
+#             row = self.board[i]
+#             filled = 0
+#             for col in row:
+#                 if (col > 0):
+#                     filled += 1
+#             if (filled >= self.cols):
+#                 del self.board[i]
+#                 new_row = []
+#                 for j in range(self.cols):
+#                     new_row.append(0)
+#                 cleared += 1
+#                 self.board.insert(0, new_row)
+#         scores = [0, 40, 100, 300, 1200]
+#         self.cleared_rows = self.cleared_rows + cleared
+#         self.score = self.score + scores[cleared]
+#         self.score_total["text"] = "Score: " + str(self.score)
+#         self.score_rows["text"] = "Rows: " + str(self.cleared_rows)
+                    
+#     def __init__(self):
+#         self.rows=15
+#         self.cols=10
+#         self.board = self.loadBoard()
+
+    
+#         self.x_pos = 4
+#         self.y_pos = 0
+#         self.shape = 0
+#         self.rotation = 0
+#         self.current_piece = self.pieces[self.shape][self.rotation]
+#         self.root.bind("<Key>", keyPressed)
+
+
+
+
+# def movePiece(old_x, old_y):
+#     for i in range(len(tetris.current_piece)):
+#         for j in range(len(tetris.current_piece[i])):
+#             this_x = old_x + i
+#             this_y = old_y + j
+#             if (tetris.board[this_y][this_x] < 10):
+#                 tetris.board[this_y][this_x] = 0
+#     drawPiece()
+
+# def clearPiece():
+#     for i in range(len(tetris.current_piece)):
+#         for j in range(len(tetris.current_piece[i])):
+#             this_x = tetris.x_pos + i
+#             this_y = tetris.y_pos + j
+#             if (tetris.board[this_y][this_x] < 10):
+#                 tetris.board[this_y][this_x] = 0
+#     return
+
+
+# def collision_check(check_x, check_y, piece):
+#     for i in range(len(piece)):
+#         for j in range(len(piece[i])):
+#             this_x = check_x + i
+#             this_y = check_y + j
+#             if ((tetris.board[this_y][this_x] > 9) and (piece[i][j]) > 0):
+#                 return True
+#     else:
+#         return False
+
+# def cement_block():
+#     for i in range(len(tetris.current_piece)):
+#         for j in range(len(tetris.current_piece[i])):
+#             this_x = tetris.x_pos + i
+#             this_y = tetris.y_pos + j
+#             if (tetris.board[this_y][this_x] < 10):
+#                 tetris.board[this_y][this_x] = (tetris.current_piece[i][j]) * 10
+#     tetris.checkRows()
+#     if (tetris.y_pos == 0):
+#         restart()
+
+# def outOfBoundsX(x):
+#     if (x<0):
+#         return True
+#     elif (x + len(tetris.current_piece) > len(tetris.board[0])):
+#         return True
+#     else:
+#         return False
+
+# def outOfBoundsY(y):
+#     if (y + len(tetris.current_piece[0]) > len(tetris.board)):
+#         return True
+#     else:
+#         return False
+
+# def checkRotation():
+#     this_rotation = tetris.rotation
+#     okay = ((this_rotation+1) > len(tetris.pieces[tetris.shape])-1)
+
+#     if (okay):
+#         this_rotation = 0
+#     else:
+#         this_rotation += 1
+
+#     new_piece = tetris.pieces[tetris.shape][(this_rotation)]
+#     not_okay = ((tetris.x_pos + len(new_piece)) > len(tetris.board[0]))
+#     also_bad = ((tetris.y_pos + len(new_piece[0])) > len(tetris.board))
+
+#     if (not_okay or also_bad):
+#         return True
+#     else:
+#         collides = collision_check(tetris.x_pos, tetris.y_pos, new_piece)
+#         if (collides):
+#             return True
+#         else:
+#             return False
+    
+# def dropPiece():
+#     if (outOfBoundsY(tetris.y_pos+1)):
+#         cement_block()
+#         newPiece()
+#     elif (collision_check(tetris.x_pos, tetris.y_pos+1, tetris.current_piece)):
+#         cement_block()
+#         newPiece()
+#     else:
+#         old_x = tetris.x_pos
+#         old_y = tetris.y_pos
+#         tetris.y_pos += 1
+#         movePiece(old_x, old_y)
+
+# def rotate():
+#     this_rotation = tetris.rotation
+#     okay = ((this_rotation+1) > len(tetris.pieces[tetris.shape])-1)
+
+#     if (okay):
+#         tetris.rotation = 0
+#     else:
+#         tetris.rotation += 1
+
+#     new_piece = tetris.pieces[tetris.shape][(this_rotation)]
+#     not_okay = ((tetris.x_pos + len(new_piece)) > len(tetris.board[0]))
+#     clearPiece()
+#     tetris.current_piece = tetris.pieces[tetris.shape][tetris.rotation]
+#     drawPiece()
+
+# def keyPressed(event):
+#     if (event.keysym =="Up"):
+#         if (checkRotation()):
+#             pass
+#         else:
+#             rotate()
+#     elif (event.keysym =="Down"):
+#         dropPiece()
+#     elif (event.keysym=="Left"):
+#         if (outOfBoundsX(tetris.x_pos-1)):
+#             pass
+#         elif (collision_check(tetris.x_pos-1, tetris.y_pos, tetris.current_piece)):
+#             pass
+#         else:
+#             old_x = tetris.x_pos
+#             old_y = tetris.y_pos
+#             tetris.x_pos -= 1
+#             movePiece(old_x, old_y)
+#     elif (event.keysym =="Right"):
+#         if (outOfBoundsX(tetris.x_pos+1)):
+#             pass
+#         elif (collision_check(tetris.x_pos+1, tetris.y_pos, tetris.current_piece)):
+#             pass
+#         else:
+#             old_x = tetris.x_pos
+#             old_y = tetris.y_pos
+#             tetris.x_pos += 1
+#             movePiece(old_x, old_y)
+#     elif (event.keysym =="r"):
+#         restart()
+
+# def restart():
+#     tetris.root.destroy()
+#     init()
+
+
+# def init():
+#     global tetris
+#     tetris = Tetris()
+#     newPiece()
+#     run()
+#     tetris.root.mainloop()
+
+# init()
+

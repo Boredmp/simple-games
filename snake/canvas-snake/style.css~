@@ -1,0 +1,17 @@
+body {
+    background:#white;
+    text-align:center;
+}
+
+canvas {
+    border-style:solid;
+    border-widt:1px;
+}
+
+#header {
+    min-height:100px;
+}
+
+#footer {
+    min-height:150px;
+}
