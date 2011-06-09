@@ -4,7 +4,9 @@ from Tkinter import *
 class Grid(object):
     def __init__(self, rows, cols):
         self.grid = self.create_grid(rows, cols)
-        self.cols = cols
+        self.cleared_rows = 0
+        self.score = 0
+
     def create_grid(self, rows, cols):
         new_grid = []
         for i in range(rows):
@@ -13,6 +15,25 @@ class Grid(object):
                 row.append(0)
             new_grid.append(row)
         return new_grid
+
+    def check_rows(self):
+        cleared = 0
+        for i in range(len(self.grid)):
+            row = self.grid[i]
+            filled = 0
+            for col in row:
+                if (col > 0):
+                    filled += 1
+            if (filled >= len(self.grid[0])):
+                del self.grid[i]
+                new_row = []
+                for j in range(len(self.grid[0])):
+                    new_row.append(0)
+                cleared += 1
+                self.grid.insert(0, new_row)
+        scores = [0, 40, 100, 300, 1200]
+        self.cleared_rows = self.cleared_rows + cleared
+        self.score = self.score + scores[cleared]
 
     def insert_block(self, block):
         for i in range(len(block.current)):
@@ -85,6 +106,7 @@ class Grid(object):
                 this_y = block.y + j
                 if (self.grid[this_y][this_x] < 10):
                     self.grid[this_y][this_x] = (block.current[i][j]) * 10
+        self.check_rows()
 
     def drop_block(self, block):
         if (self.out_of_bounds_Y(block, block.y+1)):
@@ -182,32 +204,12 @@ class Game(object):
         self.root.mainloop()
     
     def run(self):
+        self.score_total["text"] = "Score: " + str(self.grid.score)
+        self.score_rows["text"] = "Rows: " + str(self.grid.cleared_rows)
         self.grid.drop_block(self.block)
-        self.check_rows()
         self.draw_grid()
         self.root.after(800, self.run)
 
-    def check_rows(self):
-        cleared = 0
-        for i in range(len(self.grid.grid)):
-            row = self.grid.grid[i]
-            filled = 0
-            for col in row:
-                if (col > 0):
-                    filled += 1
-            if (filled >= self.grid.cols):
-                del self.grid.grid[i]
-                new_row = []
-                for j in range(self.grid.cols):
-                    new_row.append(0)
-                cleared += 1
-                self.grid.grid.insert(0, new_row)
-        scores = [0, 40, 100, 300, 1200]
-        self.cleared_rows = self.cleared_rows + cleared
-        self.score = self.score + scores[cleared]
-        self.score_total["text"] = "Score: " + str(self.score)
-        self.score_rows["text"] = "Rows: " + str(self.cleared_rows)
-        self.draw_grid()
 
     def draw_cell(self, left, top, right, bottom, value):
         colors = ("#260033", "#f24e4e", "#ff7f47", "#ffb91c", "#75de41", "#03e3c2", "#7e00f2", "#00de3b")
