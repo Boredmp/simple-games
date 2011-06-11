@@ -13,8 +13,15 @@ body {
     margin-left:-200px;
 }
 
-.cell {
+.empty {
     background-image: url("blue.png");
+    width:40px;
+    height:40px;
+    position:absolute;
+}
+
+.green {
+    background-image: url("green.png");
     width:40px;
     height:40px;
     position:absolute;
@@ -25,5 +32,5 @@ body {
 }
 
 #footer {
-    min-height:150px;
+    min-height:450px;
 }
