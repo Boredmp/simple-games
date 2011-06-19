@@ -107,7 +107,7 @@ $(document).ready(function() {
 	    if (this.direction == 'UP') return (i-1);
 	    else if (this.direction == 'DOWN') return (i+1);
 	    else if (this.direction == 'LEFT') return (i-(FIELD_LEN/SEGMENT_LEN));
-	    else if (this.direction == 'RIGHT') return (i+(FIELD_LEN/SEGMENT_LEN));
+	    ()else if (this.direction == 'RIGHT') return (i+(FIELD_LEN/SEGMENT_LEN));
 	    else return false;
 	};
 

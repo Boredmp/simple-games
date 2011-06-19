@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import tetris_base
+import tetris
 import unittest
 
 from test_grids import TestGrids
@@ -16,29 +16,29 @@ class CreateGrid(unittest.TestCase):
         self.expected_4 = TestGrids.empty
 
     def test_1x1_grid(self):
-        grid_1 = tetris_base.Grid(1,1)
+        grid_1 = tetris.Grid(1,1)
         self.assertEqual(grid_1.grid, self.expected_1)
 
     def test_2x2_grid(self):
-        grid_2 = tetris_base.Grid(2,2)
+        grid_2 = tetris.Grid(2,2)
         self.assertEqual(grid_2.grid, self.expected_2)
 
     def test_5x3_grid(self):
-        grid_3 = tetris_base.Grid(5,3)
+        grid_3 = tetris.Grid(5,3)
         self.assertEqual(grid_3.grid, self.expected_3)
 
     def test_15x10_grid(self):
-        grid_4 = tetris_base.Grid(15,10)
+        grid_4 = tetris.Grid(15,10)
         self.assertEqual(grid_4.grid, self.expected_4)
 
 class InsertBlock(unittest.TestCase):
     def setUp(self):
-        self.grid = tetris_base.Grid(15,10)
+        self.grid = tetris.Grid(15,10)
         self.o_block = self.choose_block('o', 0)
 
     def choose_block(self, this_shape, rotation):
         shapes = {'s':0, 'z':1, 'l':2, 'j':3, 't':4, 'i':5, 'o':6}
-        block = tetris_base.Block()
+        block = tetris.Block()
         block.new_block()
         if (rotation > len(block.blocks[shapes[this_shape]])):
             fail("Rotation index out of range")
@@ -59,8 +59,5 @@ class InsertBlock(unittest.TestCase):
         self.grid.insert_block(self.o_block)
         self.assertEqual(self.grid.grid, TestGrids.o_start)
         
-    
-    
 if __name__ == "__main__":
     unittest.main()
-    
