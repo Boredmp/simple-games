@@ -2,7 +2,7 @@
 
 from random import randint
 from Tkinter import *
-from snake_levels import levels
+from snake_levels import get_level
 
 class Snake(object):
     def __init__(self):
@@ -26,16 +26,18 @@ class Snake(object):
         head=(next_row, next_col)
         self.next_head = head
         
-    def move(self):
-        self.body.pop()
-        head = self.next_head
-        #print head
-        self.body.insert(0, head)
+    def move(self, growing):
+        if growing:
+            head = self.next_head
+            self.body.insert(0, head)
+        else:
+            self.body.pop()
+            head = self.next_head
+            self.body.insert(0, head)
 
 class Grid(object):
     def __init__(self):
-        self.grid=levels[0]
-#        print levels[0]
+        self.grid=get_level(0)
         
     def insert_snake(self, snake_body):
         for coord in snake_body:
@@ -46,13 +48,21 @@ class Grid(object):
     def insert_food(self):
         food_x=randint(0, len(self.grid)-1)
         food_y=randint(0, len(self.grid[0])-1)
-        self.grid[food_x][food_y]=1
+        if self.grid[food_x][food_y] == 0:  
+            self.grid[food_x][food_y]=1
+        else: 
+            insert_food()
+
+
 
     def check_food(self, snake):
         next_position = snake.next_head
         food = self.grid[next_position[0]][next_position[1]]
         if (food == 1):
             self.insert_food()
+            return True
+        else:
+            return False
 
     def check_collision(self, snake):
         #check for collision with snake body
@@ -76,6 +86,7 @@ class Game(object):
         self.root=Tk()
         self.board=Grid()
         self.snake = Snake()
+        self.speed = 200
         self.cell_width=25
         self.root.bind("<Key>", self.keyPressed)
         self.canvas = Canvas(self.root, width=self.cell_width*len(self.board.grid[0]), height=self.cell_width*len(self.board.grid))
@@ -120,15 +131,23 @@ class Game(object):
 
     def run(self):
         self.snake.next_position(self.board.grid)
-        self.board.check_food(self.snake)
+
         if self.board.check_collision(self.snake):
             self.game_over()
         self.board.clear_snake(self.snake.body)
-        self.snake.move()
+
+        if self.board.check_food(self.snake):
+            self.snake.move(True)
+            if self.speed > 15:
+                self.speed -= 5
+
+        else:
+            self.snake.move(False)
+
         self.board.insert_snake(self.snake.body)
         self.draw_grid()
-        self.root.after(200, self.run)
-
-game = Game()
+        self.root.after(self.speed, self.run)
 
 
+if __name__ ==  "__main__":
+    game = Game()
