@@ -6,7 +6,9 @@ from snake_levels import get_level
 
 class Snake(object):
     def __init__(self):
-        self.body = [(4,4),(4,5),(4,6),(5,6),(6,6),(7,6),(8,6)]
+        # self.body = [(9,9),(9,10),(9,11),(9,12),(9,13),(9,14),(9,15)]
+        # self.body = [(1,4),(2,4),(3,4),(3,3),(2,3),(1,3),(1,2)]
+        self.body = [(16,1),(17,1),(18,1),(18,2),(17,2),(16,2),(15,2)] # level 2
         self.direction = 'N'
         self.next_head = (0,0)
         
@@ -37,7 +39,8 @@ class Snake(object):
 
 class Grid(object):
     def __init__(self):
-        self.grid=get_level(0)
+        self.grid=get_level(4)
+        self.score=0
         
     def insert_snake(self, snake_body):
         for coord in snake_body:
@@ -51,15 +54,14 @@ class Grid(object):
         if self.grid[food_x][food_y] == 0:  
             self.grid[food_x][food_y]=1
         else: 
-            insert_food()
-
-
+            self.insert_food()
 
     def check_food(self, snake):
         next_position = snake.next_head
         food = self.grid[next_position[0]][next_position[1]]
         if (food == 1):
             self.insert_food()
+            self.score=self.score+10
             return True
         else:
             return False
@@ -69,10 +71,8 @@ class Grid(object):
         next_position = snake.next_head
         wall = self.grid[next_position[0]][next_position[1]]
         if snake.next_head in snake.body:
-            print "Game Over"
             return True
         elif (wall ==3):
-            print "Game Over"
             return True
         else:
             return False
@@ -89,6 +89,14 @@ class Game(object):
         self.speed = 200
         self.cell_width=25
         self.root.bind("<Key>", self.keyPressed)
+        self.frame=Frame(self.root)
+        self.frame.pack()
+        self.score_total=Label(self.frame, text="Score: 0   ")
+        self.score_total.pack(fill=Y, side=LEFT)
+        restartbutton=Button(self.frame, text="Restart", command=self.game_over)
+        restartbutton.pack(fill=X, side=RIGHT)
+##        exitbutton=Button(self.frame, text="Exit Game", command=sys.exit)
+##        exitbutton.pack(fill=X, side=RIGHT)
         self.canvas = Canvas(self.root, width=self.cell_width*len(self.board.grid[0]), height=self.cell_width*len(self.board.grid))
         self.canvas.pack()
         self.board.insert_food()
@@ -130,10 +138,16 @@ class Game(object):
             restart()
 
     def run(self):
+        self.score_total["text"]="Score: "+str(self.board.score)+ "  "
         self.snake.next_position(self.board.grid)
 
         if self.board.check_collision(self.snake):
-            self.game_over()
+            #self.game_over()
+            self.speed=0
+            game_overtext=self.canvas.create_text(225, 275, text="Game Over!", fill="white",
+                                    font=("Helvectica", "25"))
+            game_overtext.pack()
+            #Label(self.frame, text="Collision! Game Over").pack
         self.board.clear_snake(self.snake.body)
 
         if self.board.check_food(self.snake):
