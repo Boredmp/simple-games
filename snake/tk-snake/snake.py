@@ -38,8 +38,8 @@ class Snake(object):
             self.body.insert(0, head)
 
 class Grid(object):
-    def __init__(self):
-        self.grid=get_level(4)
+    def __init__(self, level_num):
+        self.grid=get_level(level_num)
         self.score=0
         
     def insert_snake(self, snake_body):
@@ -84,7 +84,8 @@ class Grid(object):
 class Game(object):
     def __init__(self):
         self.root=Tk()
-        self.board=Grid()
+        self.level_number=3
+        self.board=Grid(self.level_number)
         self.snake = Snake()
         self.speed = 200
         self.cell_width=25
