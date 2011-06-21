@@ -84,10 +84,11 @@ class Grid(object):
 class Game(object):
     def __init__(self):
         self.root=Tk()
-        self.level_number=3
+        self.level_number=0
         self.board=Grid(self.level_number)
         self.snake = Snake()
         self.speed = 200
+        self.score_list=[100, 200, 300, 400, 500]
         self.cell_width=25
         self.root.bind("<Key>", self.keyPressed)
         self.frame=Frame(self.root)
@@ -109,6 +110,17 @@ class Game(object):
         self.root.destroy()
         self.__init__()
 
+    def next_level(self):
+        if self.level_number>4:
+            self.level_number=0
+        else:
+            self.level_number+=1
+        self.board=Grid(self.level_number)
+        self.snake = Snake()
+        self.speed = 200
+        self.board.insert_food()
+
+        
     def draw_cell(self, left, top, right, bottom, value):
         colors = ("#260033", "#f24e4e", "#ff7f47", "#ffb91c", "#75de41", "#03e3c2", "#7e00f2", "#00de3b")
         if (value > 9):
@@ -136,7 +148,7 @@ class Game(object):
         elif (event.keysym =="Right"):
             self.snake.direction = 'E'
         elif (event.keysym =="r"):
-            restart()
+            self.next_level()
 
     def run(self):
         self.score_total["text"]="Score: "+str(self.board.score)+ "  "
@@ -161,6 +173,8 @@ class Game(object):
 
         self.board.insert_snake(self.snake.body)
         self.draw_grid()
+        if self.board.score in self.score_list:
+            self.next_level()
         self.root.after(self.speed, self.run)
 
 
